@@ -1,21 +1,24 @@
 package com.polotika.nearbyplacescleanarch.ui.feature.maps
 
-import androidx.fragment.app.Fragment
-
+import android.Manifest
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.snackbar.Snackbar
 import com.polotika.nearbyplacescleanarch.R
+import com.polotika.nearbyplacescleanarch.core.common.BaseFragment
+import permissions.dispatcher.PermissionRequest
+import permissions.dispatcher.*
+import timber.log.Timber
 
-class RestaurantMapsFragment : Fragment() {
+@RuntimePermissions
+class RestaurantMapsFragment : BaseFragment() {
 
     private val callback = OnMapReadyCallback { googleMap ->
         /**
@@ -44,5 +47,43 @@ class RestaurantMapsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
+        //getCurrentLocation()
+
+
     }
+
+    @NeedsPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    private fun getCurrentLocation() {
+        if (isLocationEnabled()) {
+            getLastKnownLocation {
+                Timber.e("available lat , long: %s,%s",it.longitude,it.longitude)
+            }
+        } else {
+            showAlertDialog(
+                title = "Location permission not enabled",
+                text = "Please allow location permission to use all app features.",
+                posBtnText = "Okay",
+                posBtnListener = { dialog, _ ->
+
+
+                    dialog.dismiss()
+                })
+        }
+
+    }
+    @OnShowRationale(Manifest.permission.ACCESS_FINE_LOCATION)
+    private fun showRationalForAccessFine(request: PermissionRequest) {
+
+    }
+
+    @OnPermissionDenied(Manifest.permission.ACCESS_FINE_LOCATION)
+    private fun onAccessFineDenied(request: PermissionRequest) {
+
+    }
+
+    @OnNeverAskAgain(Manifest.permission.ACCESS_FINE_LOCATION)
+    private fun onAccessFineNeverAskAgain() {
+        Snackbar.make(requireView(), "Location access Denied", Snackbar.LENGTH_LONG).show()
+    }
+
 }

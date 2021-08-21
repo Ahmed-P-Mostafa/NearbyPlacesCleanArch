@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -51,6 +52,13 @@ dependencies {
     implementation Libs.material
     implementation Libs.constraintLayout
     implementation Libs.googleMap
+    implementation Libs.locationServices
+
+    implementation Libs.permissionsDispatcher
+    kapt Libs.permissionsDispatcherProcessor
+    annotationProcessor Libs.permissionsDispatcherProcessor
+
+    implementation Libs.timber
     testImplementation TestLibs.junit
     androidTestImplementation TestLibs.junitExt
     androidTestImplementation TestLibs.espresso
