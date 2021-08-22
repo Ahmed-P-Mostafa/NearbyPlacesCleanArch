@@ -56,7 +56,7 @@ dependencies {
 
     implementation Libs.permissionsDispatcher
     kapt Libs.permissionsDispatcherProcessor
-    annotationProcessor Libs.permissionsDispatcherProcessor
+    //annotationProcessor Libs.permissionsDispatcherProcessor
 
     implementation Libs.timber
     testImplementation TestLibs.junit

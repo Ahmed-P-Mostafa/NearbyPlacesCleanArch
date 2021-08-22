@@ -1,10 +1,15 @@
 package com.polotika.nearbyplacescleanarch.ui.feature.maps
 
 import android.Manifest
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.content.ContextCompat
+import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
@@ -16,9 +21,12 @@ import com.polotika.nearbyplacescleanarch.core.common.BaseFragment
 import permissions.dispatcher.PermissionRequest
 import permissions.dispatcher.*
 import timber.log.Timber
+import java.security.Permission
+import java.security.Permissions
 
-@RuntimePermissions
 class RestaurantMapsFragment : BaseFragment() {
+    private val TAG = "RestaurantMapsFragment"
+    private val LOCATION_REQUEST_CODE = 20001
 
     private val callback = OnMapReadyCallback { googleMap ->
         /**
@@ -47,43 +55,65 @@ class RestaurantMapsFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
-        //getCurrentLocation()
+
+        getCurrentLocation()
 
 
     }
 
-    @NeedsPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+
     private fun getCurrentLocation() {
-        if (isLocationEnabled()) {
+        Log.d(TAG, "getCurrentLocation: 1")
+        if (isLocationEnabled()&& ContextCompat.checkSelfPermission(requireContext()
+                ,Manifest.permission.ACCESS_FINE_LOCATION)==PERMISSION_GRANTED) {
+            Log.d(TAG, "getCurrentLocation: enabled")
+
+            Timber.d(TAG, "getCurrentLocation: location enabled")
             getLastKnownLocation {
-                Timber.e("available lat , long: %s,%s",it.longitude,it.longitude)
+                Timber.e("available lat , long: %s,%s", it.longitude, it.longitude)
+                Log.d(TAG, "lat: ${it.latitude.toString()}  long: ${it.longitude.toString()} ")
             }
+
         } else {
-            showAlertDialog(
-                title = "Location permission not enabled",
-                text = "Please allow location permission to use all app features.",
-                posBtnText = "Okay",
-                posBtnListener = { dialog, _ ->
+            if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                showAlertDialog(
+                    title = "Location permission not enabled",
+                    text = "Please allow location permission to use all app features.",
+                    posBtnText = "Okay",
+                    posBtnListener = { dialog, _ ->
+                        requestPermissions(
+                            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                            LOCATION_REQUEST_CODE
+                        )
 
+                        dialog.dismiss()
+                    })
+            } else {
+                requestPermissions(
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                    LOCATION_REQUEST_CODE
+                )
 
-                    dialog.dismiss()
-                })
+            }
+
         }
 
     }
-    @OnShowRationale(Manifest.permission.ACCESS_FINE_LOCATION)
-    private fun showRationalForAccessFine(request: PermissionRequest) {
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == LOCATION_REQUEST_CODE && grantResults[0]
+                .equals(Manifest.permission.ACCESS_FINE_LOCATION)) {
+            getLastKnownLocation {
+                Timber.e("available lat , long: %s,%s", it.longitude, it.longitude)
+                Log.d(TAG, "lat: ${it.latitude.toString()}  long: ${it.longitude.toString()} ")
+
+            }
+        }else Toast.makeText(requireContext(), "Request denied", Toast.LENGTH_SHORT).show()
     }
 
-    @OnPermissionDenied(Manifest.permission.ACCESS_FINE_LOCATION)
-    private fun onAccessFineDenied(request: PermissionRequest) {
-
-    }
-
-    @OnNeverAskAgain(Manifest.permission.ACCESS_FINE_LOCATION)
-    private fun onAccessFineNeverAskAgain() {
-        Snackbar.make(requireView(), "Location access Denied", Snackbar.LENGTH_LONG).show()
-    }
 
 }
