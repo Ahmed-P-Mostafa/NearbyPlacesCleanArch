@@ -2,8 +2,9 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-kapt'
-}
+    id 'dagger.hilt.android.plugin'
 
+}
 android {
     compileSdkVersion Android.compileSDK
     buildToolsVersion "30.0.3"
@@ -51,14 +52,17 @@ dependencies {
     implementation Libs.appCompat
     implementation Libs.material
     implementation Libs.constraintLayout
+
+    // google maps and location service
     implementation Libs.googleMap
     implementation Libs.locationServices
 
-    implementation Libs.permissionsDispatcher
-    kapt Libs.permissionsDispatcherProcessor
-    //annotationProcessor Libs.permissionsDispatcherProcessor
+    // hilt
+    implementation Libs.hiltAndroid
+    kapt Libs.hiltAndroidCompiler
 
-    implementation Libs.timber
+
+    // testing
     testImplementation TestLibs.junit
     androidTestImplementation TestLibs.junitExt
     androidTestImplementation TestLibs.espresso

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">NearbyPlacesCleanArch</string>
+    <string name="permission_denied_message">\"Without this location access permission application is unable to access yor location and get your nearby locations, are you sure you want to dent this permission ?\"</string>
 </resources>
