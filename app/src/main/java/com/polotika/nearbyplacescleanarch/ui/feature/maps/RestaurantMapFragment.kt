@@ -14,26 +14,34 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.polotika.nearbyplacescleanarch.R
 import com.polotika.nearbyplacescleanarch.core.common.BaseFragment
+import com.polotika.nearbyplacescleanarch.core.navigator.AppNavigator
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class RestaurantMapsFragment : BaseFragment() {
+class RestaurantMapFragment : BaseFragment(), GoogleMap.OnMarkerClickListener {
+
+    @Inject
+    lateinit var appNavigator: AppNavigator
     private val TAG = "RestaurantMapsFragment"
     private val LOCATION_REQUEST_CODE = 20001
     private val locationSettingsScreen =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             getCurrentLocation()
         }
-    private val appSettingsScreen = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
-        getCurrentLocation()
-    }
+    private val appSettingsScreen =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            getCurrentLocation()
+        }
     private val locationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             if (it) {
@@ -43,9 +51,12 @@ class RestaurantMapsFragment : BaseFragment() {
                 showAlertDialog(
                     title = "Denied permission is required",
                     text = getString(R.string.permission_denied_message),
-                    posBtnText = "RE-RTY",posBtnListener = {d,_ ->
+                    posBtnText = "RE-RTY",
+                    posBtnListener = { d, _ ->
                         appSettingsScreen.launch(Intent(Settings.ACTION_APN_SETTINGS))
-                    },negBtnText =  "",negBtnListener = {d,_->
+                    },
+                    negBtnText = "",
+                    negBtnListener = { d, _ ->
                         d.dismiss()
                     },
                 )
@@ -64,6 +75,7 @@ class RestaurantMapsFragment : BaseFragment() {
         val sydney = LatLng(-34.0, 151.0)
         googleMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        googleMap.setOnMarkerClickListener(this)
     }
 
     override fun onCreateView(
@@ -83,7 +95,6 @@ class RestaurantMapsFragment : BaseFragment() {
 
 
     }
-
 
     private fun getCurrentLocation() {
         when {
@@ -132,59 +143,6 @@ class RestaurantMapsFragment : BaseFragment() {
             }
         }
 
-        /*
-            Log.d(TAG, "getCurrentLocation: 1")
-            if (isLocationEnabled() && ContextCompat.checkSelfPermission(
-                    requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
-                ) == PERMISSION_GRANTED
-            ) {
-                Log.d(TAG, "getCurrentLocation: enabled")
-
-                Timber.d(TAG, "getCurrentLocation: location enabled")
-                getLastKnownLocation {
-                    Timber.e("available lat , long: %s,%s", it.longitude, it.longitude)
-                    Log.d(TAG, "lat: ${it.latitude.toString()}  long: ${it.longitude.toString()} ")
-                }
-
-            } else {
-                Timber.d(TAG, "location and gps are turned off")
-                if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
-                    Timber.d(TAG, "should show rational")
-                    showAlertDialog(
-                        title = "Location permission not enabled",
-                        text = "Please allow location permission to use all app features.",
-                        posBtnText = "Okay",
-                        posBtnListener = { dialog, _ ->
-                            requestPermissions(
-                                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                                LOCATION_REQUEST_CODE
-                            )
-
-                            dialog.dismiss()
-                        })
-                } else if (ContextCompat.checkSelfPermission(
-                        requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
-                    ) == PERMISSION_DENIED
-                ) {
-                    showAlertDialog(
-                        "Permission required",
-                        "Location access permission is required for the app to get your location and your nearby places",
-                        "Enable"
-                    ) { dialog, _ ->
-                        openSettingScreen()
-                        dialog.dismiss()
-                    }
-                } else {
-                    Timber.d(TAG, "request permission")
-                    requestPermissions(
-                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                        LOCATION_REQUEST_CODE
-                    )
-
-                }
-
-            }*/
-
     }
 
     override fun onRequestPermissionsResult(
@@ -202,6 +160,11 @@ class RestaurantMapsFragment : BaseFragment() {
         } else Toast.makeText(requireContext(), "Request denied", Toast.LENGTH_SHORT).show()
     }
 
+    override fun onMarkerClick(marker: Marker?): Boolean {
+
+        appNavigator.navigateTo(AppNavigator.Screen.RESTAURANT)
+        return false
+    }
 
 
 }

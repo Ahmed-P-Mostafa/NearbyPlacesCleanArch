@@ -4,6 +4,7 @@ plugins {
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
 
+
 }
 android {
     compileSdkVersion Android.compileSDK
@@ -60,6 +61,16 @@ dependencies {
     // hilt
     implementation Libs.hiltAndroid
     kapt Libs.hiltAndroidCompiler
+
+    // Rx
+    implementation Libs.rxAndroid
+    implementation Libs.rxVersion
+    implementation Libs.rxAdapter
+
+    // retrofit
+    implementation Libs.retrofit
+    implementation Libs.gson
+    implementation Libs.gsonConverter
 
 
     // testing

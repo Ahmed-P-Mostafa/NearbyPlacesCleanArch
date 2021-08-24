@@ -1,5 +1,5 @@
 object Versions {
-    val KOTLIN = "1.3.72"
+    val KOTLIN = "1.5.21"
     val COMPILE_SDK = 28
     val MIN_SDK_VERSION = 16
     val TARGET_SDK_VERSION = 28
@@ -10,7 +10,7 @@ object Versions {
     val GSON_VERSION = "2.8.7"
     val LIFE_CYCLE_VERSION = "2.2.0"
     val CONSTRAINT_LAYOUT = "2.0.4"
-    val ANDROID_GRADLE_VERSION = "4.0.1"
+    val ANDROID_GRADLE_VERSION = "4.2.2"
     val APP_COMPAT_VERSION = "1.3.0"
     val CORE_KTX = "1.1.0"
     val ARCH_CORE_TESTING_VER = "2.0.0"
@@ -22,7 +22,7 @@ object Versions {
     val MOCKITO = "3.11.2"
     val MULTIDEX = "1.0.3"
     val JACOCO = "0.16.0"
-    val HILT = "2.37"
+    val HILT = "2.38.1"
     val FRAGMENT_KTX = "1.2.5"
     val RX_RETROFIT_ADAPTER = "2.6.1"
     val RETROFIT_VERSION = "2.7.1"
