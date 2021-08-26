@@ -92,8 +92,6 @@ class RestaurantMapFragment : BaseFragment(), GoogleMap.OnMarkerClickListener {
         mapFragment?.getMapAsync(callback)
 
         getCurrentLocation()
-
-
     }
 
     private fun getCurrentLocation() {
@@ -108,8 +106,7 @@ class RestaurantMapFragment : BaseFragment(), GoogleMap.OnMarkerClickListener {
                     getLastKnownLocation {
                         Log.d(
                             TAG,
-                            "lat: ${it.latitude.toString()}  long: ${it.longitude.toString()} "
-                        )
+                            "lat: ${it.latitude.toString()}  long: ${it.longitude.toString()} ")
                     }
                 } else {
                     locationSettingsScreen.launch(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))

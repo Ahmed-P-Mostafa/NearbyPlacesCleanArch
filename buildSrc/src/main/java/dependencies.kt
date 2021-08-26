@@ -32,7 +32,7 @@ object Versions {
     val GOOGLE_MAP = "17.0.0"
     val LOCATION_SERVICES = "15.0.1"
     val TIMBER  = "4.7.1"
-    val PERMISSION_DISPATCHER = "4.9.1"
+    val PERMISSION_DISPATCHER = "4.8.0"
 }
 
 object BuildPlugins {
