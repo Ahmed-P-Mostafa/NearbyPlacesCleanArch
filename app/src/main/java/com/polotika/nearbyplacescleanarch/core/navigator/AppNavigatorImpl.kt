@@ -2,7 +2,7 @@ package com.polotika.nearbyplacescleanarch.core.navigator
 
 import androidx.fragment.app.FragmentActivity
 import com.polotika.nearbyplacescleanarch.R
-import com.polotika.nearbyplacescleanarch.ui.feature.maps.RestaurantMapFragment
+import com.polotika.nearbyplacescleanarch.ui.feature.map.RestaurantMapFragment
 import com.polotika.nearbyplacescleanarch.ui.feature.restaurant.RestaurantDetailsFragment
 import javax.inject.Inject
 

@@ -26,7 +26,7 @@ class GetRestaurant @Inject constructor(private val repository: RestaurantReposi
             is UnknownHostException -> Failure.NetworkConnection
             is HttpException-> {
                 when(throwable.code()){
-                    HttpURLConnection.HTTP_NOT_FOUND ->Failure.ServerError.NotFound
+                    HttpURLConnection.HTTP_NOT_FOUND -> Failure.ServerError.NotFound
                     HttpURLConnection.HTTP_FORBIDDEN ->Failure.ServerError.AccessDenied
                     HttpURLConnection.HTTP_UNAVAILABLE ->Failure.ServerError.ServerUnavailable
                     else ->Failure.UnknownError
@@ -34,6 +34,5 @@ class GetRestaurant @Inject constructor(private val repository: RestaurantReposi
             }
             else -> Failure.UnknownError
         }
-
     }
 }

@@ -1,8 +1,10 @@
-package com.polotika.nearbyplacescleanarch.ui.feature.maps
+package com.polotika.nearbyplacescleanarch.ui.feature.map
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
@@ -13,16 +15,20 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
+import androidx.fragment.app.viewModels
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.*
+import com.google.android.gms.maps.model.*
+import com.google.android.material.snackbar.Snackbar
 import com.polotika.nearbyplacescleanarch.R
 import com.polotika.nearbyplacescleanarch.core.common.BaseFragment
+import com.polotika.nearbyplacescleanarch.core.common.DataState
 import com.polotika.nearbyplacescleanarch.core.navigator.AppNavigator
+import com.polotika.nearbyplacescleanarch.databinding.FragmentRestaurantMapsBinding
+import com.polotika.nearbyplacescleanarch.domain.dto.LocationDto
+import com.polotika.nearbyplacescleanarch.domain.entity.Restaurant
+import com.polotika.nearbyplacescleanarch.domain.error.Failure
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -30,8 +36,14 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class RestaurantMapFragment : BaseFragment(), GoogleMap.OnMarkerClickListener {
 
+
     @Inject
     lateinit var appNavigator: AppNavigator
+
+    var binding :FragmentRestaurantMapsBinding?=null
+
+    private val viewModel :MapViewModel by viewModels()
+    private var googleMap :GoogleMap? = null
     private val TAG = "RestaurantMapsFragment"
     private val LOCATION_REQUEST_CODE = 20001
     private val locationSettingsScreen =
@@ -63,19 +75,11 @@ class RestaurantMapFragment : BaseFragment(), GoogleMap.OnMarkerClickListener {
         }
 
     private val callback = OnMapReadyCallback { googleMap ->
-        /**
-         * Manipulates the map once available.
-         * This callback is triggered when the map is ready to be used.
-         * This is where we can add markers or lines, add listeners or move the camera.
-         * In this case, we just add a marker near Sydney, Australia.
-         * If Google Play services is not installed on the device, the user will be prompted to
-         * install it inside the SupportMapFragment. This method will only be triggered once the
-         * user has installed Google Play services and returned to the app.
-         */
-        val sydney = LatLng(-34.0, 151.0)
-        googleMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        this.googleMap = googleMap
+
+
         googleMap.setOnMarkerClickListener(this)
+        observers()
     }
 
     override fun onCreateView(
@@ -83,9 +87,11 @@ class RestaurantMapFragment : BaseFragment(), GoogleMap.OnMarkerClickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_restaurant_maps, container, false)
+        binding = FragmentRestaurantMapsBinding.inflate(inflater,container,false)
+        return binding?.root
     }
 
+    @SuppressLint("MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
@@ -104,9 +110,19 @@ class RestaurantMapFragment : BaseFragment(), GoogleMap.OnMarkerClickListener {
                     Log.d(TAG, "getCurrentLocation: enabled")
 
                     getLastKnownLocation {
-                        Log.d(
-                            TAG,
-                            "lat: ${it.latitude.toString()}  long: ${it.longitude.toString()} ")
+                        Log.d(TAG, "lat: ${it.latitude.toString()}  long: ${it.longitude.toString()} ")
+                        val location = LatLng(it.latitude, it.longitude)
+
+                        val myLocationCircle = CircleOptions().center(location).radius(10000.0)
+                            .strokeWidth(5f).fillColor(Color.TRANSPARENT).strokeColor(Color.BLUE)
+
+                        googleMap?.isMyLocationEnabled = true
+
+                        googleMap?.addCircle(myLocationCircle)
+
+                        googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(location,12f),2500,null)
+
+                        viewModel.getRestaurants(LocationDto(it.latitude,it.longitude))
                     }
                 } else {
                     locationSettingsScreen.launch(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
@@ -161,6 +177,56 @@ class RestaurantMapFragment : BaseFragment(), GoogleMap.OnMarkerClickListener {
 
         appNavigator.navigateTo(AppNavigator.Screen.RESTAURANT)
         return false
+    }
+
+    private fun observers(){
+        viewModel.restaurantLiveData.observe(viewLifecycleOwner,{dataState->
+            when(dataState){
+                is DataState.Success ->{
+                    handleLoader(false)
+                    renderRestaurantMarkers(dataState.data)
+                }
+                is DataState.Error ->{
+                    handleLoader(false)
+                    if (dataState.error is Failure.NetworkConnection){
+                        showError(getString(R.string.network_error))
+                    }else{
+                        showError(getString(R.string.general_error))
+                    }
+
+                }
+                is DataState.Loading ->{
+                    handleLoader(true)
+                    Log.d(TAG, "observers: loading")
+                }
+
+            }
+        })
+    }
+
+    private fun renderRestaurantMarkers(list:List<Restaurant>){
+
+        list.forEach { restaurant ->
+            val location = LatLng(restaurant.latitude, restaurant.longitude)
+            googleMap?.addMarker(MarkerOptions().position(location).title(restaurant.name))
+        }
+    }
+
+    private fun handleLoader(isLoading:Boolean){
+        when(isLoading){
+            true -> binding?.progressBar?.visibility = View.VISIBLE
+
+            false -> binding?.progressBar?.visibility = View.GONE
+        }
+    }
+
+    private fun showError(message:String){
+        Snackbar.make(binding!!.mainView,message,Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        binding = null
     }
 
 

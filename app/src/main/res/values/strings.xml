@@ -6,4 +6,6 @@
     <string name="name">Name</string>
     <string name="address">Address</string>
     <string name="city">City</string>
+    <string name="network_error">No internet connection</string>
+    <string name="general_error">Something went wrong</string>
 </resources>

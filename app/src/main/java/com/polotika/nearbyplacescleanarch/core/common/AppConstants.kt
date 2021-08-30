@@ -11,5 +11,7 @@ object AppConstants {
     // Default Values
     const val CURRENT_VERSION = "20120609"
     const val RESTAURANT_QUERY = "restaurant"
+    const val TIME_OUT_VALUE = 30L
+    const val BASE_URL = "https://api.foursquare.com/"
 
 }

@@ -10,12 +10,18 @@ android {
     compileSdkVersion Android.compileSDK
     buildToolsVersion "30.0.3"
 
+    packagingOptions{
+        pickFirst "androidsupportmultidexversion.txt"
+    }
+
     defaultConfig {
         applicationId Android.applicationId
         minSdkVersion Android.minSDK
         targetSdkVersion Android.targetSDK
         versionCode Android.versionCode
         versionName Android.versionName
+
+        multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -41,7 +47,12 @@ android {
     buildTypes{
         debug{
             resValue("string","google_map_api_key",localProperties['MAPS_API_KEY'])
+            resValue("string","foursquare_client_id",localProperties['CLIENT_ID'])
+            resValue("string","foursquare_client_secret",localProperties['CLIENT_SECRET'])
         }
+    }
+    buildFeatures{
+        viewBinding true
     }
 
 }
@@ -53,6 +64,8 @@ dependencies {
     implementation Libs.appCompat
     implementation Libs.material
     implementation Libs.constraintLayout
+    implementation Libs.fragmentKtx
+    implementation Libs.multidex
 
     // google maps and location service
     implementation Libs.googleMap
@@ -66,6 +79,7 @@ dependencies {
     implementation Libs.rxAndroid
     implementation Libs.rxVersion
     implementation Libs.rxAdapter
+    implementation Libs.loggingInterceptor
 
     // retrofit
     implementation Libs.retrofit
