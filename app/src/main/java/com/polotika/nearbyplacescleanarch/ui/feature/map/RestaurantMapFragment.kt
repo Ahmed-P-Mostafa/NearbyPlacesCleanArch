@@ -16,8 +16,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
 import com.google.android.material.snackbar.Snackbar
@@ -27,6 +25,7 @@ import com.polotika.nearbyplacescleanarch.core.common.DataState
 import com.polotika.nearbyplacescleanarch.core.navigator.AppNavigator
 import com.polotika.nearbyplacescleanarch.databinding.FragmentRestaurantMapsBinding
 import com.polotika.nearbyplacescleanarch.domain.dto.LocationDto
+import com.polotika.nearbyplacescleanarch.domain.dto.RequestDto
 import com.polotika.nearbyplacescleanarch.domain.entity.Restaurant
 import com.polotika.nearbyplacescleanarch.domain.error.Failure
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,7 +33,7 @@ import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class RestaurantMapFragment : BaseFragment(), GoogleMap.OnMarkerClickListener {
+class RestaurantMapFragment : BaseFragment(), GoogleMap.OnMarkerClickListener,IDragCallback {
 
 
     @Inject
@@ -88,6 +87,7 @@ class RestaurantMapFragment : BaseFragment(), GoogleMap.OnMarkerClickListener {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentRestaurantMapsBinding.inflate(inflater,container,false)
+        binding?.draggableLayout?.setDrag(this)
         return binding?.root
     }
 
@@ -122,7 +122,9 @@ class RestaurantMapFragment : BaseFragment(), GoogleMap.OnMarkerClickListener {
 
                         googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(location,12f),2500,null)
 
-                        viewModel.getRestaurants(LocationDto(it.latitude,it.longitude))
+                        val bounds = googleMap?.projection?.visibleRegion?.latLngBounds
+                        if (bounds!=null)
+                            viewModel.getRestaurants(RequestDto(location,bounds))
                     }
                 } else {
                     locationSettingsScreen.launch(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
@@ -227,6 +229,16 @@ class RestaurantMapFragment : BaseFragment(), GoogleMap.OnMarkerClickListener {
     override fun onDestroy() {
         super.onDestroy()
         binding = null
+    }
+
+    override fun onDrag() {
+       val currentLatLng = googleMap?.cameraPosition?.target
+        val currentBounds = googleMap?.projection?.visibleRegion?.latLngBounds
+
+        viewModel.resetRestaurantState()
+        if (currentBounds!=null&&currentLatLng!=null){
+            viewModel.getRestaurants(RequestDto(currentLatLng,currentBounds))
+        }
     }
 
 

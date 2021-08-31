@@ -2,6 +2,7 @@ package com.polotika.nearbyplacescleanarch.domain.interactor
 
 import com.polotika.nearbyplacescleanarch.core.common.DataState
 import com.polotika.nearbyplacescleanarch.domain.dto.LocationDto
+import com.polotika.nearbyplacescleanarch.domain.dto.RequestDto
 import com.polotika.nearbyplacescleanarch.domain.entity.Restaurant
 import com.polotika.nearbyplacescleanarch.domain.error.ErrorHandler
 import com.polotika.nearbyplacescleanarch.domain.error.Failure
@@ -13,8 +14,8 @@ import java.net.UnknownHostException
 import javax.inject.Inject
 
 class GetRestaurant @Inject constructor(private val repository: RestaurantRepository) :
-    UseCase<LocationDto, Single<DataState<List<Restaurant>>>>, ErrorHandler {
-    override fun execute(param: LocationDto): Single<DataState<List<Restaurant>>> {
+    UseCase<RequestDto, Single<DataState<List<Restaurant>>>>, ErrorHandler {
+    override fun execute(param: RequestDto): Single<DataState<List<Restaurant>>> {
         return repository.getRestaurant(param).onErrorReturn {
             DataState.Error(getError(it))
         }
