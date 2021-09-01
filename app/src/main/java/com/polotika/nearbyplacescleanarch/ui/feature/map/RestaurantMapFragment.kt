@@ -86,6 +86,7 @@ class RestaurantMapFragment : BaseFragment(), GoogleMap.OnMarkerClickListener,ID
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        Log.d(TAG, "onCreateView: ")
         binding = FragmentRestaurantMapsBinding.inflate(inflater,container,false)
         binding?.draggableLayout?.setDrag(this)
         return binding?.root
@@ -94,6 +95,7 @@ class RestaurantMapFragment : BaseFragment(), GoogleMap.OnMarkerClickListener,ID
     @SuppressLint("MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d(TAG, "onViewCreated: ")
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
 
@@ -111,14 +113,16 @@ class RestaurantMapFragment : BaseFragment(), GoogleMap.OnMarkerClickListener,ID
 
                     getLastKnownLocation {
                         Log.d(TAG, "lat: ${it.latitude.toString()}  long: ${it.longitude.toString()} ")
-                        val location = LatLng(it.latitude, it.longitude)
+
+                       val location = LatLng(it.latitude, it.longitude)
 
                         val myLocationCircle = CircleOptions().center(location).radius(10000.0)
                             .strokeWidth(5f).fillColor(Color.TRANSPARENT).strokeColor(Color.BLUE)
 
                         googleMap?.isMyLocationEnabled = true
+                        googleMap?.uiSettings?.isZoomControlsEnabled = true
 
-                        googleMap?.addCircle(myLocationCircle)
+                       // googleMap?.addCircle(myLocationCircle)
 
                         googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(location,12f),2500,null)
 
@@ -177,7 +181,7 @@ class RestaurantMapFragment : BaseFragment(), GoogleMap.OnMarkerClickListener,ID
 
     override fun onMarkerClick(marker: Marker?): Boolean {
 
-        appNavigator.navigateTo(AppNavigator.Screen.RESTAURANT)
+        appNavigator.navigateTo(AppNavigator.Screen.RESTAURANT, viewModel.markers[marker])
         return false
     }
 
@@ -207,10 +211,20 @@ class RestaurantMapFragment : BaseFragment(), GoogleMap.OnMarkerClickListener,ID
     }
 
     private fun renderRestaurantMarkers(list:List<Restaurant>){
+        val newList = viewModel.getNewRestaurants(list)
 
-        list.forEach { restaurant ->
+        newList.forEach { restaurant ->
             val location = LatLng(restaurant.latitude, restaurant.longitude)
-            googleMap?.addMarker(MarkerOptions().position(location).title(restaurant.name))
+            val marker =  googleMap?.addMarker(MarkerOptions().position(location).title(restaurant.name))
+            if (marker!=null)
+                viewModel.markers[marker] = restaurant
+        }
+
+        if (newList.isEmpty()){
+            viewModel.markers.values.forEach { venue ->
+                val loc = LatLng(venue.latitude, venue.longitude)
+                googleMap?.addMarker(MarkerOptions().position(loc).title(venue.name))
+            }
         }
     }
 
@@ -238,6 +252,7 @@ class RestaurantMapFragment : BaseFragment(), GoogleMap.OnMarkerClickListener,ID
         viewModel.resetRestaurantState()
         if (currentBounds!=null&&currentLatLng!=null){
             viewModel.getRestaurants(RequestDto(currentLatLng,currentBounds))
+
         }
     }
 

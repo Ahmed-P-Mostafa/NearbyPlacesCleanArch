@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
+    id 'kotlin-parcelize'
 
 
 }
@@ -67,12 +68,15 @@ dependencies {
     implementation Libs.fragmentKtx
     implementation Libs.multidex
 
+
     // google maps and location service
     implementation Libs.googleMap
     implementation Libs.locationServices
 
     // hilt
     implementation Libs.hiltAndroid
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     kapt Libs.hiltAndroidCompiler
 
     // Rx
