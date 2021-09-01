@@ -89,6 +89,7 @@ class RestaurantMapFragment : BaseFragment(), GoogleMap.OnMarkerClickListener,ID
         Log.d(TAG, "onCreateView: ")
         binding = FragmentRestaurantMapsBinding.inflate(inflater,container,false)
         binding?.draggableLayout?.setDrag(this)
+        viewModel.fragmentRecreated = (savedInstanceState!=null)
         return binding?.root
     }
 
@@ -220,7 +221,7 @@ class RestaurantMapFragment : BaseFragment(), GoogleMap.OnMarkerClickListener,ID
                 viewModel.markers[marker] = restaurant
         }
 
-        if (newList.isEmpty()){
+        if (newList.isEmpty()&& viewModel.fragmentRecreated){
             viewModel.markers.values.forEach { venue ->
                 val loc = LatLng(venue.latitude, venue.longitude)
                 googleMap?.addMarker(MarkerOptions().position(loc).title(venue.name))
@@ -246,6 +247,8 @@ class RestaurantMapFragment : BaseFragment(), GoogleMap.OnMarkerClickListener,ID
     }
 
     override fun onDrag() {
+        if (viewModel.fragmentRecreated)
+            viewModel.fragmentRecreated = false
        val currentLatLng = googleMap?.cameraPosition?.target
         val currentBounds = googleMap?.projection?.visibleRegion?.latLngBounds
 

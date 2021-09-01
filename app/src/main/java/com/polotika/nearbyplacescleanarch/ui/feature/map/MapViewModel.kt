@@ -19,6 +19,8 @@ class MapViewModel @Inject constructor(private val getRestaurant: GetRestaurant)
 
     val markers = HashMap<Marker, Restaurant>()
 
+    var fragmentRecreated = false
+
     fun getRestaurants(locationDto: RequestDto) {
         if (restaurantLiveData.value != null) return
 
