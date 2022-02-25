@@ -1,8 +1,8 @@
 object Versions {
     val KOTLIN = "1.5.21"
-    val COMPILE_SDK = 28
+    val COMPILE_SDK = 31
     val MIN_SDK_VERSION = 16
-    val TARGET_SDK_VERSION = 28
+    val TARGET_SDK_VERSION = 31
     val VERSION_CODE = 1
     val VERSION_NAME = "1.0"
     val RXJAVA_VERSION = "2.2.13"
@@ -26,13 +26,14 @@ object Versions {
     val FRAGMENT_KTX = "1.2.5"
     val RX_RETROFIT_ADAPTER = "2.6.1"
     val RETROFIT_VERSION = "2.7.1"
-    val OKHTTP_LOGGING_INTERCEPTOR_VERSION = "3.12.1"
+    val OKHTTP_LOGGING_INTERCEPTOR_VERSION = "5.0.0-alpha.2"
     val GSON_CONVERTER = "2.6.1"
     val ESPRESSO = "3.1.0"
     val GOOGLE_MAP = "17.0.0"
     val LOCATION_SERVICES = "15.0.1"
     val TIMBER  = "4.7.1"
     val PERMISSION_DISPATCHER = "4.8.0"
+    val ADMOB = "20.6.0"
 }
 
 object BuildPlugins {
@@ -76,6 +77,8 @@ object Libs {
     val timber =  "com.jakewharton.timber:timber:${Versions.TIMBER}"
     val permissionsDispatcher ="com.github.permissions-dispatcher:permissionsdispatcher:${Versions.PERMISSION_DISPATCHER}"
     val permissionsDispatcherProcessor ="com.github.permissions-dispatcher:permissionsdispatcher-processor:${Versions.PERMISSION_DISPATCHER}"
+    val adMob = "com.google.android.gms:play-services-ads:${Versions.ADMOB}"
+
 }
 
 object TestLibs {

@@ -16,7 +16,7 @@ class AuthInterceptor @Inject constructor(private val context: Context) : Interc
     override fun intercept(chain: Interceptor.Chain): Response {
 
         val request = chain.request()
-        val originalUrl = request.url()
+        val originalUrl = request.url
         val modifiedUrl = originalUrl.newBuilder()
             .addQueryParameter(CLIENT_ID_KEY, context.getString(R.string.foursquare_client_id))
             .addQueryParameter(CLIENT_SECRET_KEY,context.getString(R.string.foursquare_client_secret))

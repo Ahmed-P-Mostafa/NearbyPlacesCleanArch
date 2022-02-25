@@ -9,7 +9,7 @@ plugins {
 }
 android {
     compileSdkVersion Android.compileSDK
-    buildToolsVersion "30.0.3"
+    //buildToolsVersion "30.0.3"
 
     packagingOptions{
         pickFirst "androidsupportmultidexversion.txt"
@@ -50,6 +50,8 @@ android {
             resValue("string","google_map_api_key",localProperties['MAPS_API_KEY'])
             resValue("string","foursquare_client_id",localProperties['CLIENT_ID'])
             resValue("string","foursquare_client_secret",localProperties['CLIENT_SECRET'])
+            resValue("string","adMob_application_id",localProperties['APPLICATION_ID'])
+            resValue("string","adMob_ad_unit_id",localProperties['AD_UNIT_ID'])
         }
     }
     buildFeatures{
@@ -77,6 +79,9 @@ dependencies {
     implementation Libs.hiltAndroid
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'com.google.android.material:material:1.5.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
     kapt Libs.hiltAndroidCompiler
 
     // Rx
@@ -95,4 +100,8 @@ dependencies {
     testImplementation TestLibs.junit
     androidTestImplementation TestLibs.junitExt
     androidTestImplementation TestLibs.espresso
+
+
+    //AdMob
+    implementation Libs.adMob
 }
